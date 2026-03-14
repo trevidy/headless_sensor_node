@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_system.h"
+#include "boot.h"
 
 extern "C" void app_main(void)
 {
@@ -10,6 +10,8 @@ extern "C" void app_main(void)
     printf(" Headless Sensor node v1\n");
     printf(" Booting...\n");
     printf("============================\n");
+
+    boot_log_reset_reason();
 
     while (true)
     {
