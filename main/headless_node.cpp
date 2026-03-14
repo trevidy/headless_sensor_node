@@ -1,7 +1,7 @@
 #include <stdio.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+
 #include "boot.h"
+#include "runtime.h"
 
 extern "C" void app_main(void)
 {
@@ -15,6 +15,6 @@ extern "C" void app_main(void)
 
     while (true)
     {
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        runtime_start();
     }
 }
