@@ -4,12 +4,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "event_queue.h"
+#include "state_machine.h"
 
 void runtime_start()
 {
     printf("Runtime starting...\n");
 
     event_queue_init();
+    state_machine_init();
 
     // First event
     event_post({EVT_BOOT,0});
@@ -21,17 +23,16 @@ void runtime_start()
         static int counter = 0;
         counter++;
 
-        if(counter==100)
+        if (counter >=100)
         {
             event_post({EVT_TIMER_1S,0});
             counter = 0;
         }
-        
-        if(event_get(&event))
-        {
-            printf("Event received: %d\n", event.type);
-        }
 
+        if (event_get(&event))
+        {
+            state_machine_handle_event(event);
+        }
         
 
         vTaskDelay(pdMS_TO_TICKS(10));
