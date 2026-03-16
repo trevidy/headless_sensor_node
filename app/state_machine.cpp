@@ -1,5 +1,6 @@
 #include "state_machine.h"
 #include <stdio.h>
+#include "logger.h"
 
 static system_state_t current_state;
 
@@ -24,7 +25,7 @@ static void transition_to(system_state_t new_state)
     }    
     on_exit(current_state);
     
-    printf("STATE: %d -> %d\n", current_state, new_state);
+    //log_message(LOG_INFO, "State transition");
 
     current_state = new_state;
 
@@ -85,27 +86,27 @@ static void on_enter(system_state_t state)
     switch (state)
     {
         case STATE_BOOT:
-            printf("Entering BOOT\n");
+            log_message(LOG_INFO, "Entering BOOT");
             break;
         
         case STATE_INIT:
-            printf("Initializing system\n");
+            log_message(LOG_INFO, "Initializing system");
             break;
 
         case STATE_IDLE:
-            printf("System idle\n");
+            log_message(LOG_INFO, "System idle");
             break;
 
         case STATE_ACTIVE:
-            printf("System active\n");
+            log_message(LOG_INFO, "System active");
             break;
 
         case STATE_FAULT:
-            printf("Fault detected\n");
+            log_message(LOG_ERROR, "Fault detected");
             break;
 
         case STATE_SAFE_MODE:
-            printf("SAFE MODE\n");
+            log_message(LOG_ERROR, "SAFE MODE");
             break;
     }
 }
@@ -115,7 +116,7 @@ static void on_exit(system_state_t state)
     switch (state)
     {
         case STATE_ACTIVE:
-            printf("Stopping active operations\n");
+            log_message(LOG_INFO, "Stopping active operations");
             break;
         
         default:

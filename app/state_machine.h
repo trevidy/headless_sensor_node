@@ -4,7 +4,7 @@
 typedef enum 
 {
     //essentially just numbers, but we give names for readability
-    
+
     STATE_BOOT = 0,   //system just started 
     STATE_INIT,       //initializing services
     STATE_IDLE,       //ready but not doing work

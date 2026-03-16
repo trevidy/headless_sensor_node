@@ -3,6 +3,7 @@ idf_component_register(
          "../core/boot.cpp"
          "../core/runtime.cpp"
          "../services/event_queue.cpp"
+         "../services/logger.cpp"
          "../app/state_machine.cpp"
     INCLUDE_DIRS "."
                  "../core" 
