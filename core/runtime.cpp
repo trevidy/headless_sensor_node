@@ -6,12 +6,14 @@
 #include "event_queue.h"
 #include "state_machine.h"
 #include "logger.h"
+#include "config_store.h"
 
 void runtime_start()
 {
     printf("Runtime starting...\n");
 
     logger_init();
+    config_init();
 
     event_queue_init();
     state_machine_init();
