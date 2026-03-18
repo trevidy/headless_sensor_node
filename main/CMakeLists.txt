@@ -5,6 +5,7 @@ idf_component_register(
          "../services/event_queue.cpp"
          "../services/logger.cpp"
          "../services/config_store.cpp"
+         "../services/watchdog.cpp"
          "../app/state_machine.cpp"
     INCLUDE_DIRS "."
                  "../core" 

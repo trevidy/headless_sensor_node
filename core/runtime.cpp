@@ -7,6 +7,7 @@
 #include "state_machine.h"
 #include "logger.h"
 #include "config_store.h"
+#include "watchdog.h"
 
 void runtime_start()
 {
@@ -14,6 +15,7 @@ void runtime_start()
 
     logger_init();
     config_init();
+    watchdog_init();
 
     event_queue_init();
     state_machine_init();
@@ -40,7 +42,8 @@ void runtime_start()
         {
             state_machine_handle_event(event);
         }
-        
+
+        //watchdog_kick();
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
