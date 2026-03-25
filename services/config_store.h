@@ -15,6 +15,8 @@ typedef struct
 
     uint32_t sample_interval_ms;
     uint32_t device_id;
+
+    uint32_t boot_fail_count;
 } config_block_t;
 
 void config_init();

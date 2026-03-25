@@ -4,7 +4,24 @@
 
 #include <string.h>
 
+#include "nvs_flash.h"
+#include "nvs.h"
+#include "logger.h"
+
 static config_block_t current_config;
+
+static bool flash_write_stub(const config_block_t* cfg)
+{
+    // Simulate successful write
+    return true;
+}
+
+static bool flash_read_stub(config_block_t* cfg)
+{
+    *cfg = current_config;
+    return true;
+}
+
 
 static uint32_t compute_crc(config_block_t *cfg)
 {
@@ -16,6 +33,14 @@ static uint32_t compute_crc(config_block_t *cfg)
                         (uint8_t*)cfg +12,
                         sizeof(config_block_t)-12);
 }
+
+static bool verify_config(const config_block_t *cfg)
+{
+    uint32_t computed_crc = compute_crc((config_block_t*)cfg);
+
+    return (computed_crc == cfg->crc) && (cfg->version == CONFIG_VERSION);
+}
+
 
 static void load_defaults()
 {
@@ -48,7 +73,22 @@ bool config_save(config_block_t *cfg)
 {
     cfg->seq++;
     cfg->crc = compute_crc(cfg); //before saving, run a mathematical formula over all the data in the struct. result is stored in crc and will be compared with a re-calculated crc value when the device reboots. if they dont match, the code knows the memory was corrupted.
-    current_config = *cfg; // take all the data from the pointer cfg (temporary workspace) and overwrite the main global variable current_config
+    
+    // simulated flash write
+    bool write_ok = flash_write_stub(cfg);
 
-    return true;
+    config_block_t readback;
+    bool read_ok = flash_read_stub(&readback);
+
+    // simulated verification
+    bool verify_success = write_ok && read_ok;
+
+    // verify crc
+    if (verify_config(&readback) && verify_success)
+    {
+        current_config = readback; // take all the data from the pointer cfg (temporary workspace) and overwrite the main global variable current_config
+        return true;
+    }
+    
+    return false;
 }

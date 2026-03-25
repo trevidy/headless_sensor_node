@@ -8,6 +8,7 @@
 #include "logger.h"
 #include "config_store.h"
 #include "watchdog.h"
+#include "nvs_flash.h"
 
 void runtime_start()
 {
