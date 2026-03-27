@@ -17,7 +17,7 @@ void watchdog_init()
     esp_task_wdt_add(NULL); //esp_task_wdt_add([subscribe to a specific task])
 
     log_message(LOG_INFO,"Watchdog initialized");
-    }
+}
 
 void watchdog_kick()
 {

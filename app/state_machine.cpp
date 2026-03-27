@@ -10,6 +10,7 @@ static void on_exit(system_state_t state);
 void state_machine_init()
 {
     current_state = STATE_BOOT; //type enum 'system_state_t' can hold one value at a time.
+    printf("state machine initialized\n");
 }
 
 system_state_t state_machine_get_state()
