@@ -31,7 +31,6 @@ static const char* reset_reason_to_string(esp_reset_reason_t reason)
 
 void boot_log_reset_reason()
 {
-    printf("called\n");
     esp_reset_reason_t reason = esp_reset_reason();
     
     printf("Reset reason: %s\n", reset_reason_to_string(reason));
@@ -77,4 +76,8 @@ void boot_log_reset_reason()
     // snprintf(boot_fail_after_buf, sizeof(boot_fail_after_buf), "Boot fail count AFTER: %d", boot_fail_count);
     // log_message(LOG_INFO, boot_fail_after_buf);
     // log_message(LOG_INFO,"----------------------\n");
+}
+
+void boot_count(){
+    printf("Boot count: %ld\n", boot_fail_count);
 }
