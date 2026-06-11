@@ -24,3 +24,12 @@ Design Principles:
 -modular firmware architecture
 -recoverable failure modes
 -persistent observability
+
+
+Learning goals:
+- RTOS
+- Persistent storage
+- Fault tolerance
+- firmware architecture
+- observability
+- build system

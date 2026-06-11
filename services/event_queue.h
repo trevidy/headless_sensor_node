@@ -8,12 +8,16 @@ typedef enum
     EVT_NONE = 0,
 
     EVT_BOOT,
+    EVT_INIT_DONE, //replaces timer hack
     EVT_TIMER_1S,
 
+    EVT_SENSOR_READY,
     EVT_SENSOR_TIMEOUT,
     EVT_COMM_FAILURE,
 
-    EVT_FAULT
+    EVT_FAULT,
+    EVT_FAULT_CLEARED, //recovery attempt succeeded
+    EVT_SAFE_MODE //explicit safe mode trigger
 } event_type_t;
 
 typedef struct
