@@ -12,6 +12,7 @@ typedef enum
     EVT_TIMER_1S,
 
     EVT_SENSOR_READY,
+    EVT_PROCESS_DONE, //complete task in active state
     EVT_SENSOR_TIMEOUT,
     EVT_COMM_FAILURE,
 

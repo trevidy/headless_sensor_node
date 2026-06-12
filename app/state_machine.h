@@ -18,3 +18,5 @@ void state_machine_init();
 void state_machine_handle_event(event_t event);
 
 system_state_t state_machine_get_state();
+
+bool state_machine_should_kick_wdt();
