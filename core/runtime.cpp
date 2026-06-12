@@ -26,12 +26,12 @@ void runtime_start()
     logger_init();
     config_init();
     watchdog_init();
-
     event_queue_init();
     state_machine_init();
+    vTaskDelay(pdMS_TO_TICKS(500));
 
-    // First event
-    event_post({EVT_BOOT,0});
+    event_post({EVT_BOOT,0}); 
+    event_post({EVT_INIT_DONE,0}); // signal INIT complete
 
     event_t event;
 
@@ -40,25 +40,28 @@ void runtime_start()
         static int counter = 0;
         counter++;
         
-        if (counter >=100)
+        if (counter >=100) // loop every 1 second 
         {
-            event_post({EVT_TIMER_1S,0});
+            event_post({EVT_TIMER_1S,0}); // 1 second has passed event
             counter = 0;
 
             log_memory_usage();
             int64_t uptime_sec = esp_timer_get_time()/1000000;
             printf("Uptime: %lld s\n", uptime_sec);
+
             boot_count();
             printf("\n");
         }
         
-
         if (event_get(&event))
         {
             state_machine_handle_event(event);
         }
 
-        watchdog_kick();
+        if (state_machine_should_kick_wdt())
+        {
+            watchdog_kick(); //twdt for IDLE, INIT, ACTIVE, & BOOT. Not for FAULT & SAFE_MODE
+        }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }

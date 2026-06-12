@@ -19,6 +19,7 @@ void state_machine_init()
     current_state = STATE_BOOT; //type enum 'system_state_t' can hold one value at a time.
     fault_count = 0;
     log_message(LOG_INFO, "state machine initialized\n");
+    on_enter(STATE_BOOT); //manually enter since we bypass transition_to()
 }
 
 system_state_t state_machine_get_state()
@@ -29,7 +30,7 @@ system_state_t state_machine_get_state()
 // Call this from runtime loop - true means kick the watchdog, false means don't
 bool state_machine_should_kick_wdt()
 {
-    return (current_state == STATE_IDLE   ||
+    return (current_state == STATE_IDLE   || 
             current_state == STATE_INIT   ||
             current_state == STATE_ACTIVE ||
             current_state == STATE_BOOT);
