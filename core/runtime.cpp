@@ -28,8 +28,7 @@ void runtime_start()
     watchdog_init();
     event_queue_init();
     state_machine_init();
-    vTaskDelay(pdMS_TO_TICKS(500));
-
+    
     event_post({EVT_BOOT,0}); 
     event_post({EVT_INIT_DONE,0}); // signal INIT complete
 
