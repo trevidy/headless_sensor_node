@@ -27,14 +27,27 @@ void sensor_init()
     params.mode = BMP280_MODE_NORMAL;
 
     memset(&dev, 0 , sizeof(dev)); //zero out the entire dev struct for safety before writing.
+    
+    // 1. populate the standard i2c configuration fields
     dev.i2c_dev.port = I2C_NUM_0; //set I2C bus
     dev.i2c_dev.addr = BMP280_I2C_ADDRESS_0; //0x76 via structural field
     dev.i2c_dev.cfg.sda_io_num = GPIO_NUM_21;
     dev.i2c_dev.cfg.scl_io_num = GPIO_NUM_22;
     dev.i2c_dev.cfg.master.clk_speed = 400000;  // 400kHz fast mode
 
+    // 2. initialize the global i2c driver manager
     i2cdev_init();  // initializes the global I2C mutex system
-    esp_err_t err = bmp280_init(&dev, &params);     
+
+    // 3. create a device-specific mutex
+    esp_err_t err = i2c_dev_create_mutex(&dev.i2c_dev);
+    if(err != ESP_OK){
+        log_message(LOG_ERROR, "Failed to create I2C device mutex");
+        initialized = false;
+        return;
+    }
+
+    // 4. now, initialize the actual sensor.
+    err = bmp280_init(&dev, &params);     
     if (err != ESP_OK){
         log_message(LOG_ERROR, "BME280 init failed");
         initialized = false;
