@@ -10,6 +10,7 @@
 #include "watchdog.h"
 #include "nvs_flash.h"
 #include "boot.h"
+#include "sensor.h"
 
 #include "esp_heap_caps.h" // head monitoring
 #include "esp_timer.h" // uptime tracking
@@ -28,6 +29,7 @@ void runtime_start()
     watchdog_init();
     event_queue_init();
     state_machine_init();
+    sensor_init();
     
     event_post({EVT_BOOT,0}); 
     event_post({EVT_INIT_DONE,0}); // signal INIT complete
@@ -41,13 +43,21 @@ void runtime_start()
         
         if (counter >=100) // loop every 1 second 
         {
-            event_post({EVT_TIMER_1S,0}); // 1 second has passed event
             counter = 0;
+
+            sensor_reading_t reading;
+            if (sensor_read(&reading))
+            {
+                printf("Temp: %.1fC Humidity: %.1f %% Pressure: %.1f hPa\n", reading.temperature, reading.humidity, reading.pressure);
+                event_post({EVT_SENSOR_READY,0});
+            }
+            else{
+                event_post({EVT_SENSOR_TIMEOUT,0});
+            }
 
             log_memory_usage();
             int64_t uptime_sec = esp_timer_get_time()/1000000;
             printf("Uptime: %lld s\n", uptime_sec);
-
             boot_count();
             printf("\n");
         }

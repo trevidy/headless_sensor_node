@@ -1,3 +1,0 @@
-dependencies:
-  idf: ">=5.0"
-  esp-idf-lib/bmp280: "^0.0.3"

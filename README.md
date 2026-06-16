@@ -33,3 +33,4 @@ Learning goals:
 - firmware architecture
 - observability
 - build system
+

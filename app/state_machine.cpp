@@ -99,7 +99,7 @@ void state_machine_handle_event(event_t event)
             }
 
             break;
-
+            
         case STATE_FAULT:
 
             if(event.type == EVT_FAULT_CLEARED)
@@ -145,6 +145,7 @@ static void on_enter(system_state_t state)
 
         case STATE_ACTIVE:
             log_message(LOG_INFO, "=== ACTIVE ===");
+            event_post({EVT_PROCESS_DONE,0});
             break;
 
         case STATE_FAULT:
