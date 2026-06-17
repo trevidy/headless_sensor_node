@@ -4,6 +4,7 @@
 #include "watchdog.h"
 #include "logger.h"
 #include "esp_system.h"
+#include "crash_log.h"
 #include <stdio.h>
 
 static system_state_t current_state;
@@ -102,18 +103,19 @@ void state_machine_handle_event(event_t event)
             
         case STATE_FAULT:
 
-            if(event.type == EVT_FAULT_CLEARED)
+            if(event.type == EVT_SENSOR_READY)
             {
+                fault_count = 0;
+                printf("Sensor data received. fault count back to zero: (%d) ===", fault_count);
                 transition_to(STATE_IDLE);
             }
             
-            else if (event.type == EVT_TIMER_1S)
+            else if (event.type == EVT_SENSOR_TIMEOUT)
             {
                 fault_count++;
+                printf("Sensor timeout. fault count: (%d/%d) ===\n", fault_count, MAX_FAULTS);
                 if (fault_count >= MAX_FAULTS)
                     transition_to(STATE_SAFE_MODE);
-                else
-                    transition_to(STATE_IDLE);
             }
 
             break;
@@ -141,6 +143,7 @@ static void on_enter(system_state_t state)
 
         case STATE_IDLE:
             log_message(LOG_INFO, "=== IDLE ===");
+            printf("\n");
             break;
 
         case STATE_ACTIVE:
@@ -149,11 +152,13 @@ static void on_enter(system_state_t state)
             break;
 
         case STATE_FAULT:
-            log_message(LOG_ERROR, "=== FAULT === recoverable error detected ===");
+            fault_count++;
+            printf("=== FAULT === recoverable error detected (%d/%d) ===", fault_count, MAX_FAULTS);
             break;
 
         case STATE_SAFE_MODE:
             log_message(LOG_FATAL, "=== SAFE MODE === too many faults, rebooting in 5s");
+            crash_log_write("SAFE_MODE", fault_count); // persists to NVS before reboot
             // don't kick the WDT, but give the logger a moment to flush
             vTaskDelay(pdMS_TO_TICKS(5000)); //only pauses this task. other tasks continues to run. 
             esp_restart();

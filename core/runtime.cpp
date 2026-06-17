@@ -11,6 +11,7 @@
 #include "nvs_flash.h"
 #include "boot.h"
 #include "sensor.h"
+#include "crash_log.h"
 
 #include "esp_heap_caps.h" // head monitoring
 #include "esp_timer.h" // uptime tracking
@@ -24,7 +25,15 @@ void runtime_start()
 {
     printf("Runtime starting...\n");
 
+    esp_err_t ret = nvs_flash_init();
+    if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        nvs_flash_erase();
+        nvs_flash_init();
+    }
+    
     logger_init();
+    crash_log_init();
     config_init();
     watchdog_init();
     event_queue_init();
@@ -52,6 +61,7 @@ void runtime_start()
                 event_post({EVT_SENSOR_READY,0});
             }
             else{
+                printf("Did not get sensor reading..\n.");
                 event_post({EVT_SENSOR_TIMEOUT,0});
             }
 
@@ -59,7 +69,6 @@ void runtime_start()
             int64_t uptime_sec = esp_timer_get_time()/1000000;
             printf("Uptime: %lld s\n", uptime_sec);
             boot_count();
-            printf("\n");
         }
         
         if (event_get(&event))

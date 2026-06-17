@@ -1,6 +1,7 @@
 #include "event_queue.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "logger.h"
 
 static event_t queue[EVENT_QUEUE_SIZE];
 
@@ -11,7 +12,7 @@ void event_queue_init()
 {
     head = 0;
     tail = 0;
-    printf("event queue initialized\n");
+    log_message(LOG_INFO, "event queue initialized\n");
 }
 
 bool event_post(event_t event)

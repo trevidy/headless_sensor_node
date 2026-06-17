@@ -4,6 +4,7 @@
 #include <cstring>
 #include <stdio.h>
 #include "i2cdev.h"
+#include "watchdog.h"
 
 /*
 bmp280t is a struct defined by the driver that holds everything about the sensor.
@@ -67,8 +68,10 @@ bool sensor_read(sensor_reading_t *out)
     }
 
     float pressure, temp, humidity;
-    esp_err_t err = bmp280_read_float(&dev, &temp, &pressure, &humidity);
+    esp_err_t err = bmp280_read_float(&dev, &temp, &pressure, &humidity); // synchronous blocking call. it calls the i2cdev library. it retries up to 4 times, with a ~1 second i2c timeout per attempt. so it can block 4-5 seconds total before finally returning ESP_FAIL.
     
+    watchdog_kick(); // kick after potentially blocking I2C call
+
     if (err != ESP_OK){
         log_message(LOG_ERROR, "BME280 read failed");
         return false;
