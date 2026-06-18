@@ -7,6 +7,7 @@ idf_component_register(
          "../services/config_store.cpp"
          "../services/watchdog.cpp"
          "../services/crash_log.cpp"
+         "../services/wifi_manager.cpp"
          "../app/state_machine.cpp"
          "../app/sensor.cpp"
     INCLUDE_DIRS "."
