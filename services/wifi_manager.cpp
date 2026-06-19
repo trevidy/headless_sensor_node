@@ -64,42 +64,72 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
 */
 void wifi_manager_init(const char *ssid, const char *password)
 {
+    /*
+    * Phase 1: setting up the network infrastructure
+    */
     wifi_event_group = xEventGroupCreate(); // create the synchronization primitive for tracking the network handshake
 
-    // 1. Initialize the underlying LwIP network stack layer
+    // 1. Initialize the underlying LwIP(Lightweight IP) network stack layer, which handles networking protocols (like TCP, UDP, DHCP, and DNS)
     esp_netif_init();
 
-    esp_event_loop_create_default();
+    // 2. spawn the background system thread to route hardware/stack events to subscribers
+    esp_event_loop_create_default(); //
+
+    // 3. create default network interface instance binding LwIP to a Wi-Fi station (STA)
     esp_netif_create_default_wifi_sta();
 
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    /*
+    * Phase 2: Configuring the Wi-Fi driver
+    */
+    // 4. allocate internal Wi-Fi driver buffers and spin up low-level driver tasks
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT(); // take defaul configuraiton profile (allocating RAM for things like Wi-Fi frame buffers, RX/TX queues, and crypto acceleration), and initializes the physical Wi-Fi hardware driver.
     esp_wifi_init(&cfg);
 
+    // 5. register the local event_handler callback to filter specific event bases
+    // plugs the event_handler function into the event loop built in step 2. "if any event from the Wi-Fi driver happens, or if we successfully get an IP address from the IP stack, run the event_handler function immediately so i can process it."
     esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &event_handler, NULL);
     esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &event_handler, NULL);
 
+    // 6. safely populate credentials into the configuration struct
     wifi_config_t wifi_config = {};
     strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
     strncpy((char *)wifi_config.sta.password, password, sizeof(wifi_config.sta.password));
 
-    esp_wifi_set_mode(WIFI_MODE_STA);
+    // 7. commit operational mode and configurations to the internal driver memory
+    esp_wifi_set_mode(WIFI_MODE_STA); // tells wifi driver to work in station client mode (connect to wifi)
     esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+
+    /*
+    * Phase 3: Commencing the handshake & waiting
+    */   
+    // 8. bind the hardware peripheral and begin executing the state machine
     esp_wifi_start();
-    esp_wifi_connect();
+    esp_wifi_connect(); //asynchronous
 
-    // wait up to 10s for connection
-    EventBits_t bits = xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
+    /*
+    * Synchronous block: pause the initialization thread here until the background
+    * event_handler sets either the CONNECTED or FAIL bit, or the 10-second timeout expires
+    */
+    EventBits_t bits = xEventGroupWaitBits(wifi_event_group,
+        WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, 
+        pdFALSE,    // Do not clear bits on exit
+        pdFALSE,    // Logical OR condition (either bit satisfies the wait)
+        pdMS_TO_TICKS(10000)); // 10 seconds pass
 
-    if (bits & WIFI_CONNECTED_BIT)
+    if (bits & WIFI_CONNECTED_BIT) // evaluate the bit states returned at the unblocking checkpoint
     {   
         log_message(LOG_INFO, "WiFi connected");
     }
     else
     {
-        log_message(LOG_WARN, "WiFi connection failed - running offline");
+        log_message(LOG_WARN, "WiFi connection failed - running offline"); // caught a timeout or explicit fail bit-forces code execution onward to support offline routes
     }
 }
 
+
+/*
+* quick thread-safe status poll for upstream services checking connectivity
+*/
 bool wifi_manager_is_connected()
 {
     return connected;

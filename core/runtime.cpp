@@ -12,6 +12,7 @@
 #include "boot.h"
 #include "sensor.h"
 #include "crash_log.h"
+#include "wifi_manager.h"
 
 #include "esp_heap_caps.h" // head monitoring
 #include "esp_timer.h" // uptime tracking
@@ -31,15 +32,16 @@ void runtime_start()
         nvs_flash_erase();
         nvs_flash_init();
     }
-    
+
     logger_init();
     crash_log_init();
     config_init();
     watchdog_init();
     event_queue_init();
     state_machine_init();
-    sensor_init();
-    
+    sensor_init(); 
+    wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
+
     event_post({EVT_BOOT,0}); 
     event_post({EVT_INIT_DONE,0}); // signal INIT complete
 
