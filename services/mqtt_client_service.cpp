@@ -81,7 +81,7 @@ void mqtt_publish_fault(const char *reason)
 
     char payload[64];
     snprintf(payload, sizeof(payload), "{\"fault\":\"%s\"}", reason);
-    esp_mqtt_client_publish(client, "headless_node/fault", payload, 0, 1, 0); // publish warning tracking alerts with QoS is 1
+    esp_mqtt_client_publish(client, "headless_node_tjcdy/fault", payload, 0, 1, 0); // publish warning tracking alerts with QoS is 1
 }
 
 // return the current network state

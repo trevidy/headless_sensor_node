@@ -13,6 +13,7 @@
 #include "sensor.h"
 #include "crash_log.h"
 #include "wifi_manager.h"
+#include "mqtt_client_service.h"
 
 #include "esp_heap_caps.h" // head monitoring
 #include "esp_timer.h" // uptime tracking
@@ -41,6 +42,7 @@ void runtime_start()
     state_machine_init();
     sensor_init(); 
     wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
+    mqtt_service_init("mqtt://broker.hivemq.com"); // public broker for testing
 
     event_post({EVT_BOOT,0}); 
     event_post({EVT_INIT_DONE,0}); // signal INIT complete
@@ -61,10 +63,14 @@ void runtime_start()
             {
                 printf("Temp: %.1fC Humidity: %.1f %% Pressure: %.1f hPa\n", reading.temperature, reading.humidity, reading.pressure);
                 event_post({EVT_SENSOR_READY,0});
+
+                const char *state_name = state_machine_get_state_name();
+                mqtt_publish_telemetry(&reading, state_name, fault_count);
             }
             else{
                 printf("Did not get sensor reading..\n.");
                 event_post({EVT_SENSOR_TIMEOUT,0});
+                mqtt_publish_fault("sensor_timeout");
             }
 
             log_memory_usage();

@@ -20,3 +20,5 @@ void state_machine_handle_event(event_t event);
 system_state_t state_machine_get_state();
 
 bool state_machine_should_kick_wdt();
+
+const char* state_machine_get_state_name();

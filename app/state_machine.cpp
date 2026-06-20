@@ -178,3 +178,18 @@ static void on_exit(system_state_t state)
             break;
     }
 }
+
+const char* state_machine_get_state_name()
+{
+    switch (current_state)
+    {
+        case STATE_BOOT: return "BOOT";
+        case STATE_INIT: return "INIT";
+        case STATE_IDLE: return "IDLE";
+        case STATE_ACTIVE: return "ACTIVE";
+        case STATE_FAULT: return "FAULT";
+        case STATE_SAFE_MODE: return "SAFE_MODE";
+        default: return "UNKNOWN";
+
+    }
+}
