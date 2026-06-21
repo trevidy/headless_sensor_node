@@ -8,7 +8,7 @@ idf_component_register(
          "../services/watchdog.cpp"
          "../services/crash_log.cpp"
          "../services/wifi_manager.cpp"
-         "../services/mqtt_client_services.h"
+         "../services/mqtt_client_service.cpp"
          "../app/state_machine.cpp"
          "../app/sensor.cpp"
     INCLUDE_DIRS "."

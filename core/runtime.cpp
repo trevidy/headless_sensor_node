@@ -41,7 +41,8 @@ void runtime_start()
     event_queue_init();
     state_machine_init();
     sensor_init(); 
-    wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
+    //wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
+    wifi_manager_init("TELUS4602", "5vbp2qmtv8");
     mqtt_service_init("mqtt://broker.hivemq.com"); // public broker for testing
 
     event_post({EVT_BOOT,0}); 
@@ -65,7 +66,7 @@ void runtime_start()
                 event_post({EVT_SENSOR_READY,0});
 
                 const char *state_name = state_machine_get_state_name();
-                mqtt_publish_telemetry(&reading, state_name, fault_count);
+                mqtt_publish_telemetry(&reading, state_name, state_machine_get_fault_count());
             }
             else{
                 printf("Did not get sensor reading..\n.");

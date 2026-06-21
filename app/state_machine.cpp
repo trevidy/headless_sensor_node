@@ -193,3 +193,8 @@ const char* state_machine_get_state_name()
 
     }
 }
+
+int state_machine_get_fault_count()
+{
+    return fault_count;
+}

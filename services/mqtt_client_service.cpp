@@ -11,17 +11,17 @@ static bool mqtt_connected = false; // synchronous application state flag for sa
 * Asynchronous background callback executed by the system event loop
 * Invoked whenever the MQTT protocol engine experiences a state transition.
 */
-static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data);
+static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data)
 {
     esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t) event_data; //type-cast the generic void* payloadinto the specific MQTT structure template
     // ^cannot simply do event_data->event_id because it is of type void*
     switch (event->event_id) // evaluate the specific event packet ID delivered by the network engine
     {
-        case MQTT_EVENT_CONNECTED;
+        case MQTT_EVENT_CONNECTED:
             mqtt_connected = true; // set thread state flag to allow data transmission
             log_message(LOG_INFO, "MQTT connected");
             break;
-        case MQTT_EVENT_DISCONNECTED;
+        case MQTT_EVENT_DISCONNECTED:
             mqtt_connected = false; // clamp transmissions to prevent memory/socket errors
             log_message(LOG_WARN, "MQTT disconnected");
             break;
@@ -39,7 +39,7 @@ void mqtt_service_init(const char *broker_uri)
     config.broker.address.uri = broker_uri; // feed the generic target broker URI address string
 
     client = esp_mqtt_client_init(&config); // initialize driver engine memory blocks and store the access key pointer
-    esp_mqtt_client_register_event(client, MQTT_EVENT_ANY, mqtt_event_handle, NULL); // register our local event_handler filter directly to the client's internal loop
+    esp_mqtt_client_register_event(client, MQTT_EVENT_ANY, mqtt_event_handler, NULL); // register our local event_handler filter directly to the client's internal loop
     esp_mqtt_client_start(client); // asynchronously wake up the underlying network background socket task; essentially spawns a dedicated background thread (called mqtt_task)
     log_message(LOG_INFO, "MQTT client started");
 }
@@ -66,7 +66,7 @@ void mqtt_publish_telemetry(const sensor_reading_t *reading, const char *state_n
         state_name, fault_count);
     
     // ship packet over the broker pipeline (client, Topic, data, length=auto, QoS = 1, Retain = 0)
-    esp_mqtt_client_publish(client, "headless_node/telemetry", payload, 0, 1 ,0);
+    esp_mqtt_client_publish(client, "headless_node_tjcdy/telemetry", payload, 0, 1 ,0);
 }
 
 /*

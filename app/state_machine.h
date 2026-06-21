@@ -22,3 +22,5 @@ system_state_t state_machine_get_state();
 bool state_machine_should_kick_wdt();
 
 const char* state_machine_get_state_name();
+
+int state_machine_get_fault_count();
