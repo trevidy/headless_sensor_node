@@ -2,7 +2,7 @@
 
 A fault-tolerant ESP32 firmware node built on ESP-IDF, designed to run unattended and recover from sensor failures, and report telemetry over MQTT.
 
-## Demo (redirect to Youtube)
+## WATCH THE DEMO BELOW! (click to redirect to Youtube)
 
 [![Watch the video](https://img.youtube.com/vi/mXEJEMtZkKM/maxresdefault.jpg)](https://youtu.be/mXEJEMtZkKM)
 
