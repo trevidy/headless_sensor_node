@@ -9,10 +9,12 @@ idf_component_register(
          "../services/crash_log.cpp"
          "../services/wifi_manager.cpp"
          "../services/mqtt_client_service.cpp"
+         "../services/anomaly_detector.cpp"
          "../app/state_machine.cpp"
          "../app/sensor.cpp"
     INCLUDE_DIRS "."
                  "../core" 
                  "../services"
                  "../app"
+                 "../models"
 )

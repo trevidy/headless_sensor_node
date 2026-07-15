@@ -42,7 +42,8 @@ void runtime_start()
     state_machine_init();
     sensor_init(); 
     //wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
-    wifi_manager_init("TELUS4602", "5vbp2qmtv8");
+    //wifi_manager_init("TELUS4602", "5vbp2qmtv8");
+    wifi_manager_init("MontgoH12", "ctcsti#123");
     mqtt_service_init("mqtt://broker.hivemq.com"); // public broker for testing
 
     event_post({EVT_BOOT,0}); 

@@ -44,7 +44,7 @@ dependencies:
     - esp32s3
     version: 1.4.0
   esp-idf-lib/i2cdev:
-    component_hash: 9e22a91420695242ceac2c00788820ae45826224d38ef003a1a894367c55ede4
+    component_hash: ad8981cc64533dcaced5107d72e42bcebe79345e194e82795792af531b300ce3
     dependencies:
     - name: esp-idf-lib/esp_idf_lib_helpers
       registry_url: https://components.espressif.com
@@ -64,14 +64,39 @@ dependencies:
     - esp32p4
     - esp32s2
     - esp32s3
-    version: 2.1.1
+    version: 2.1.2
+  espressif/esp-nn:
+    component_hash: e98a7dd3dfde460b1b4ca982e2ebae0b4831719a8e4659d19c145943deaf682b
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.2'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    version: 1.2.3
+  espressif/esp-tflite-micro:
+    component_hash: 22fc501ab0b1bd39377048d608e6fce0e7b55cd07d244cbf41044b24d9b7db2e
+    dependencies:
+    - name: espressif/esp-nn
+      registry_url: https://components.espressif.com
+      require: private
+      version: '>=1.1.1'
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.3.7
   idf:
     source:
       type: idf
     version: 5.5.3
 direct_dependencies:
 - esp-idf-lib/bmp280
+- espressif/esp-tflite-micro
 - idf
-manifest_hash: b596a7c7a863cd6c12e52be329d1c7ee304e5baf79193bedbee3ce2c99f84253
+manifest_hash: 6ef4daf3887cb0c2250cbc1e048ace28b8e5ca7573e324a717f7242eafbc2bda
 target: esp32
 version: 2.0.0

@@ -1,2 +1,4 @@
 to inialize, run:
 1) get_idf
+
+2) to save to csv, run: python collect.py in a new terminal
