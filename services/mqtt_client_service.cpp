@@ -5,7 +5,7 @@
 #include <string.h>
 
 static esp_mqtt_client_handle_t client = NULL; // opaque tracking pointer holding the hidden internal state of the MQTT instance
-static bool mqtt_connected = false; // synchronous application state flag for safe data publishing checkpoints
+volatile static bool mqtt_connected = false; // synchronous application state flag for safe data publishing checkpoints
 
 /*
 * Asynchronous background callback executed by the system event loop

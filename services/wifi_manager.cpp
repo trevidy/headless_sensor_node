@@ -21,7 +21,7 @@
 */
 static EventGroupHandle_t wifi_event_group; // create an event group structure for wifi, create flags for connection or unable to connect to network.
 static int retry_count = 0;
-static bool connected = false;
+volatile static bool connected = false;
 
 /*
 * Central background callback handler for raw ESP32 wi-fi and ip-stack events.
