@@ -12,6 +12,7 @@ idf_component_register(
          "../services/anomaly_detector.cpp"
          "../app/state_machine.cpp"
          "../app/sensor.cpp"
+         "../app/button.cpp"
     INCLUDE_DIRS "."
                  "../core" 
                  "../services"

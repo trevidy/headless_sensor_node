@@ -3,7 +3,7 @@
 #include "esp_task_wdt.h"
 #include "logger.h"
 
-#define WATCHDOG_TIMEOUT_SEC 10
+#define WATCHDOG_TIMEOUT_SEC 5
 
 void watchdog_init()
 {

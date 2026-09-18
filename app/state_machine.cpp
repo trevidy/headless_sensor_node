@@ -99,6 +99,11 @@ void state_machine_handle_event(event_t event)
                 transition_to(STATE_FAULT);
             }
 
+            else if (event.type == EVT_ANOMALY_DETECTED)
+            {
+                log_message(LOG_WARN, "Anomaly detected - elevated reconstruction error");
+            }
+
             break;
             
         case STATE_FAULT:

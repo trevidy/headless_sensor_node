@@ -7,6 +7,8 @@
 #include "freertos/event_groups.h"
 #include <string.h>
 
+// elements: ESP wifi task creation, some event will happen, have event handler, update event groups
+
 /*
 * an event group uses an entire collection of bits. Depends on how the ESP32 is configured, but almost always 24 bits.
 */
@@ -114,7 +116,7 @@ void wifi_manager_init(const char *ssid, const char *password)
         WIFI_CONNECTED_BIT | WIFI_FAIL_BIT, 
         pdFALSE,    // Do not clear bits on exit
         pdFALSE,    // Logical OR condition (either bit satisfies the wait)
-        pdMS_TO_TICKS(10000)); // 10 seconds pass
+        pdMS_TO_TICKS(7000)); // 10 seconds pass
 
     if (bits & WIFI_CONNECTED_BIT) // evaluate the bit states returned at the unblocking checkpoint
     {   

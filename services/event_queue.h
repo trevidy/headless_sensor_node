@@ -16,6 +16,7 @@ typedef enum
     EVT_SENSOR_TIMEOUT,
     EVT_COMM_FAILURE,
 
+    EVT_ANOMALY_DETECTED,
     EVT_FAULT,
     EVT_FAULT_CLEARED, //recovery attempt succeeded
     EVT_SAFE_MODE //explicit safe mode trigger
