@@ -60,8 +60,6 @@ void runtime_start()
         
         if (counter >=100) // loop every 1 second 
         {
-            printf("Button ISR count: %lu\n", button_get_isr_count());
-
             counter = 0;
 
             sensor_reading_t reading;
