@@ -9,23 +9,23 @@
 // can change the pin number
 #define BUTTON_GPIO GPIO_NUM_4 
 
+// ignore any edge within this window: 50ms
+#define DEBOUNCE_US 50000
+
+// hold duration threshold for a long press
+#define LONG_PRESS_MS 600
+
 // handle for the task the ISR will notify. Must exist before the interrupt is registered, or an early press will try to notify a null handle
 static TaskHandle_t button_task_handle = NULL;
 
-// volatile since written from ISR context and read from task context
-static volatile uint32_t isr_count = 0;
-
+// ISR now fires on both edges (press and release), since we're measuring hold duration
+// This does the minimum possibe: wake the task. 
+// The woken task should read the gpio_get_level() once running
 static void IRAM_ATTR button_isr_handler(void *arg){
-    // esp_timer_get_time() returns microseconds since boot as int64_t. Truncation here is fine for now.
-    uint32_t timestamp = (uint32_t)esp_timer_get_time();
-
     BaseType_t higher_priority_task_woken = pdFALSE;
 
-    // send 32-bit value (timestamp) directly to the task identified by button_task_handle 
-    xTaskNotifyFromISR(button_task_handle, // sitting blocked, ISR changes this state from Blocked->ready
-                        timestamp,
-                        eSetValueWithOverwrite, //new press overwrites any previous unread (mid-read) values
-                        &higher_priority_task_woken);
+    // lightweight binary/counting signal
+    vTaskNotifyGiveFromISR(button_task_handle, &higher_priority_task_woken);
 
     // if this notification just woke a higher-priority task than what was currently running,
     // do a context switch immediately instead of waiting for the next tick.
@@ -35,13 +35,48 @@ static void IRAM_ATTR button_isr_handler(void *arg){
 // dedicated task - spends almost all its time blocked until 
 // the ISR wakes it
 static void button_task(void *arg){
-    uint32_t press_timestamp;
+    // last_edge_time: debounce reference point
+    // press_start_time: only set when register an actual press
+    // currently_pressed: current understanding of the button state, independent of raw GPIO noise
+    static int64_t last_edge_time = 0;
+    static int64_t press_start_time = 0;
+    static bool currently_pressed = false;
 
     while (true){
-        // portMAX_DELAY = block forever until notified. 
-        xTaskNotifyWait(0,0,&press_timestamp,portMAX_DELAY);
+        // task waits in a blocked state until its notification value becomes greater than zero.
+        // pdTRUE: Binary semaphore - clears the notification count back to 0 after reading
+        // pdFALSE: Counting semaphore - internal notification counter increments to how ever many times it is notified.
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        printf("button_task woke - press timestamp (truncated us): %lu\n", (unsigned long)press_timestamp);
+        int64_t now = esp_timer_get_time(); // full precision, no truncation
+
+        if (now - last_edge_time < DEBOUNCE_US){
+            continue; //too soon after the last edge. This is bounce, so continue to the next iteration of the while loop.
+        }
+        last_edge_time = now;
+
+        int level = gpio_get_level(BUTTON_GPIO); // 0 = PRESSED (pulled to GND), 1 = released
+
+        if (level == 0 && !currently_pressed){
+            // genuine press start
+            currently_pressed = true;
+            press_start_time = now;
+        }
+
+        else if (level == 1 && currently_pressed){
+            // genuine release - now we know the full hold duration
+            currently_pressed = false;
+            int64_t duration_ms = (now - press_start_time) / 1000;
+
+            if (duration_ms >= LONG_PRESS_MS){
+                printf("LONG PRESS (%lld ms)\n", (long long)duration_ms);
+            }
+            else{
+                printf("SHORT PRESS (%lld ms)\n", (long long)duration_ms);
+            }
+        
+        }
+        
     }
 }
 
@@ -56,7 +91,7 @@ void button_init(){
     io_conf.mode = GPIO_MODE_INPUT;
     io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
-    io_conf.intr_type = GPIO_INTR_NEGEDGE;
+    io_conf.intr_type = GPIO_INTR_ANYEDGE;
     gpio_config(&io_conf);
 
     // 3) install the shared GPIO ISR service
@@ -69,5 +104,5 @@ void button_init(){
     // 4) safe to now register the interrupt
     gpio_isr_handler_add(BUTTON_GPIO, button_isr_handler, NULL);
     
-    log_message(LOG_INFO, "button: ISR notifies button_task");
+    log_message(LOG_INFO, "button: debounce + short/long press detection");
 }
