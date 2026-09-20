@@ -14,6 +14,7 @@
 #include "crash_log.h"
 #include "wifi_manager.h"
 #include "mqtt_client_service.h"
+#include "button.h"
 
 #include "esp_heap_caps.h" // head monitoring
 #include "esp_timer.h" // uptime tracking
@@ -41,8 +42,9 @@ void runtime_start()
     event_queue_init();
     state_machine_init();
     sensor_init(); 
-    wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
-    //wifi_manager_init("TELUS4602", "5vbp2qmtv8");
+    button_init();
+    // wifi_manager_init("TELUS0605", "FK6xnrG7hkVh26nX");
+    wifi_manager_init("TELUS4602", "5vbp2qmtv8");
     // wifi_manager_init("MontgoH12", "ctcsti#123");
     mqtt_service_init("mqtt://broker.hivemq.com"); // public broker for testing
 
@@ -58,6 +60,8 @@ void runtime_start()
         
         if (counter >=100) // loop every 1 second 
         {
+            printf("Button ISR count: %lu\n", button_get_isr_count());
+
             counter = 0;
 
             sensor_reading_t reading;

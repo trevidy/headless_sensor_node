@@ -16,7 +16,7 @@
 #define WIFI_FAIL_BIT      BIT1 // Binary: 000000000000000000000010 (Decimal 1)
 // initial state: Binary: 000000000000000000000000 (both bits off) 
 
-#define MAX_RETRIES        5
+#define MAX_RETRIES        2
 
 /*
 * EventGroupHandle_t is a datatype that represents a reference pointer to an event group structure
@@ -40,7 +40,7 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
         {
             esp_wifi_connect(); // attempt non-blocking reassociation
             retry_count++;
-            printf("WiFi disconnected, retrying (%d/%d)", retry_count, MAX_RETRIES);
+            printf("WiFi disconnected, retrying (%d/%d)\n", retry_count, MAX_RETRIES);
 
         }
         else
@@ -120,11 +120,11 @@ void wifi_manager_init(const char *ssid, const char *password)
 
     if (bits & WIFI_CONNECTED_BIT) // evaluate the bit states returned at the unblocking checkpoint
     {   
-        log_message(LOG_INFO, "WiFi connected");
+        log_message(LOG_INFO, "WiFi connected\n");
     }
     else
     {
-        log_message(LOG_WARN, "WiFi connection failed - running offline"); // caught a timeout or explicit fail bit-forces code execution onward to support offline routes
+        log_message(LOG_WARN, "WiFi connection failed - running offline\n"); // caught a timeout or explicit fail bit-forces code execution onward to support offline routes
     }
 }
 
