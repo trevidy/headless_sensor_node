@@ -84,6 +84,11 @@ void state_machine_handle_event(event_t event)
             {
                 transition_to(STATE_FAULT);
             }
+            
+            else if(event.type == EVT_BUTTON_LONG_PRESS)
+            {
+                transition_to(STATE_SAFE_MODE);
+            }
 
             break;
 
@@ -102,6 +107,11 @@ void state_machine_handle_event(event_t event)
             else if (event.type == EVT_ANOMALY_DETECTED)
             {
                 log_message(LOG_WARN, "Anomaly detected - elevated reconstruction error");
+            }
+            
+            else if(event.type == EVT_BUTTON_LONG_PRESS)
+            {
+                transition_to(STATE_SAFE_MODE);
             }
 
             break;
@@ -122,11 +132,20 @@ void state_machine_handle_event(event_t event)
                 if (fault_count >= MAX_FAULTS)
                     transition_to(STATE_SAFE_MODE);
             }
+            else if(event.type == EVT_BUTTON_LONG_PRESS)
+            {
+                transition_to(STATE_SAFE_MODE);
+            }
 
             break;
 
         case STATE_SAFE_MODE:
-            //wdt will fire and reboot us
+            if(event.type == EVT_BUTTON_SHORT_PRESS)
+            {
+                fault_count = 0;
+                log_message(LOG_INFO, "Fault manually acknoledged via button - fault count reset");
+                transition_to(STATE_IDLE);
+            }
             break;
         
         default:
@@ -162,11 +181,11 @@ static void on_enter(system_state_t state)
             break;
 
         case STATE_SAFE_MODE:
-            log_message(LOG_FATAL, "=== SAFE MODE === too many faults, rebooting in 5s");
-            crash_log_write("SAFE_MODE", fault_count); // persists to NVS before reboot
-            // don't kick the WDT, but give the logger a moment to flush
-            vTaskDelay(pdMS_TO_TICKS(5000)); //only pauses this task. other tasks continues to run. 
-            esp_restart();
+            log_message(LOG_FATAL, "=== SAFE MODE === \n Press button shortly to return to IDLE mode");
+            // crash_log_write("SAFE_MODE", fault_count); // persists to NVS before reboot
+            // // don't kick the WDT, but give the logger a moment to flush
+            // vTaskDelay(pdMS_TO_TICKS(2000)); //only pauses this task. other tasks continues to run. 
+            // esp_restart();
             break;
     }
 }

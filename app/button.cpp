@@ -5,6 +5,7 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "event_queue.h"
 
 // can change the pin number
 #define BUTTON_GPIO GPIO_NUM_4 
@@ -70,9 +71,11 @@ static void button_task(void *arg){
 
             if (duration_ms >= LONG_PRESS_MS){
                 printf("LONG PRESS (%lld ms)\n", (long long)duration_ms);
+                event_post({EVT_BUTTON_LONG_PRESS, 0});
             }
             else{
                 printf("SHORT PRESS (%lld ms)\n", (long long)duration_ms);
+                event_post({EVT_BUTTON_SHORT_PRESS, 0});
             }
         
         }

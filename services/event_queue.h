@@ -16,6 +16,9 @@ typedef enum
     EVT_SENSOR_TIMEOUT,
     EVT_COMM_FAILURE,
 
+    EVT_BUTTON_SHORT_PRESS,
+    EVT_BUTTON_LONG_PRESS,
+
     EVT_ANOMALY_DETECTED,
     EVT_FAULT,
     EVT_FAULT_CLEARED, //recovery attempt succeeded
