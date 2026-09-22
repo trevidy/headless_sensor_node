@@ -61,6 +61,7 @@ void runtime_start()
         if (counter >=100) // loop every 1 second 
         {
             counter = 0;
+            printf("runtime_task running on core %d\n", xPortGetCoreID());
 
             sensor_reading_t reading;
             if (sensor_read(&reading))

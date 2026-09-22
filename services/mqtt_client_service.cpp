@@ -19,10 +19,12 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     {
         case MQTT_EVENT_CONNECTED:
             mqtt_connected = true; // set thread state flag to allow data transmission
+            printf("wifi_task running on core %d\n", xPortGetCoreID());
             log_message(LOG_INFO, "MQTT connected");
             break;
         case MQTT_EVENT_DISCONNECTED:
             mqtt_connected = false; // clamp transmissions to prevent memory/socket errors
+            printf("wifi_task running on core %d\n", xPortGetCoreID());
             log_message(LOG_WARN, "MQTT disconnected");
             break;
         default:
@@ -41,6 +43,7 @@ void mqtt_service_init(const char *broker_uri)
     client = esp_mqtt_client_init(&config); // initialize driver engine memory blocks and store the access key pointer
     esp_mqtt_client_register_event(client, MQTT_EVENT_ANY, mqtt_event_handler, NULL); // register our local event_handler filter directly to the client's internal loop
     esp_mqtt_client_start(client); // asynchronously wake up the underlying network background socket task; essentially spawns a dedicated background thread (called mqtt_task)
+    printf("wifi_task running on core %d\n", xPortGetCoreID());
     log_message(LOG_INFO, "MQTT client started");
 }
 

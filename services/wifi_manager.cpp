@@ -40,6 +40,7 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
         {
             esp_wifi_connect(); // attempt non-blocking reassociation
             retry_count++;
+            printf("wifi_task running on core %d\n", xPortGetCoreID());
             printf("WiFi disconnected, retrying (%d/%d)\n", retry_count, MAX_RETRIES);
 
         }
@@ -53,6 +54,7 @@ static void event_handler(void *arg, esp_event_base_t base, int32_t event_id, vo
     else if (base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data; // we confirmed IP_EVENT_STA_GOT_IP occurs, so the payload is always ip_event_got_ip_t structure.
+        printf("wifi_task running on core %d\n", xPortGetCoreID());
         printf("WiFi connected. IP: " IPSTR "\n", IP2STR(&event->ip_info.ip)); // output assigned IP using the IPSTR formatting macros
         retry_count = 0;
         connected = true;
@@ -120,10 +122,12 @@ void wifi_manager_init(const char *ssid, const char *password)
 
     if (bits & WIFI_CONNECTED_BIT) // evaluate the bit states returned at the unblocking checkpoint
     {   
+        printf("wifi_task running on core %d\n", xPortGetCoreID());
         log_message(LOG_INFO, "WiFi connected\n");
     }
     else
     {
+        printf("wifi_task running on core %d\n", xPortGetCoreID());
         log_message(LOG_WARN, "WiFi connection failed - running offline\n"); // caught a timeout or explicit fail bit-forces code execution onward to support offline routes
     }
 }

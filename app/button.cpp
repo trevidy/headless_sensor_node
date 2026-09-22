@@ -70,10 +70,12 @@ static void button_task(void *arg){
             int64_t duration_ms = (now - press_start_time) / 1000;
 
             if (duration_ms >= LONG_PRESS_MS){
+                printf("button_task running on core %d\n", xPortGetCoreID());
                 printf("LONG PRESS (%lld ms)\n", (long long)duration_ms);
                 event_post({EVT_BUTTON_LONG_PRESS, 0});
             }
             else{
+                printf("button_task running on core %d\n", xPortGetCoreID());
                 printf("SHORT PRESS (%lld ms)\n", (long long)duration_ms);
                 event_post({EVT_BUTTON_SHORT_PRESS, 0});
             }
